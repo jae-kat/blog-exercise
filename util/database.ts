@@ -55,3 +55,14 @@ export async function getUserByUsername(username: string) {
   `;
   return user && camelcaseKeys(user);
 }
+export async function getUserWithPasswordHash(username: string) {
+  const [user] = await sql<[(User & { passwordHash: string }) | undefined]>`
+    SELECT
+      id,
+      username,
+      password_hash
+    FROM users
+    WHERE username = ${username}
+  `;
+  return user && camelcaseKeys(user);
+}
