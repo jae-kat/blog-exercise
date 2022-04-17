@@ -1,9 +1,14 @@
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
+
+type Error = { message: string };
 
 export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<Error[]>();
+  const router = useRouter();
 
   return (
     <>
@@ -20,6 +25,12 @@ export default function Register() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: username, password: password }),
           });
+          const responseBody = await registerResponse.json();
+          if ('errors' in responseBody) {
+            setErrors(responseBody.errors);
+            return;
+          }
+          await router.push('/');
         }}
       >
         <h1 className="text-2xl font-bold my-12">Register</h1>
@@ -43,7 +54,16 @@ export default function Register() {
               onChange={(event) => setPassword(event.currentTarget.value)}
             />
           </label>
-          <button className="rounded-full p-2 my-12 text-purple-50 bg-purple-800 hover:bg-purple-700">
+          {errors && (
+            <div className="text-red-400">
+              {errors.map((error) => {
+                return (
+                  <p key={`register-error-${error.message}`}>{error.message}</p>
+                );
+              })}
+            </div>
+          )}
+          <button className="rounded-full p-2 text-purple-50 bg-purple-800 my-12 hover:bg-purple-700">
             Register
           </button>
         </div>

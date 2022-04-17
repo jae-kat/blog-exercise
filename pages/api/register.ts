@@ -7,6 +7,19 @@ export default async function registerHandler(
   response: NextApiResponse,
 ) {
   if (request.method === 'POST') {
+    // make sure data is provided -as string
+    if (
+      typeof request.body.username !== 'string' ||
+      !request.body.username ||
+      typeof request.body.password !== 'string' ||
+      !request.body.password
+    ) {
+      response.status(400).json({
+        errors: [{ message: 'Please provide a username and a password' }],
+      });
+      return;
+    }
+
     // check if the username is unique
     if (await getUserByUsername(request.body.username)) {
       response
